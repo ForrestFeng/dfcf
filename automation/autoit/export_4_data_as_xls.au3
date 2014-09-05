@@ -8,7 +8,7 @@
 ;Exit
 
 ;Close()
-;Open()
+Open()
 
 
 Local $dir = "D:\data"
@@ -28,7 +28,6 @@ While 1
    EndIf
 
    ; sleep 60 seconds
-   Sleep(1000*60)
+   CountDown(60, "Next Capture")
 WEnd
-
 

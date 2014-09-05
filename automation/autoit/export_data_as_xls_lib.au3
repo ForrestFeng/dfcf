@@ -1,7 +1,8 @@
 #include <Date.au3>
 #include <File.au3>
 #include <MsgBoxConstants.au3>
-#RequireAdmin
+#include <Timers.au3>
+;#RequireAdmin
 
 
 $TIMEOUT = 5
@@ -15,8 +16,12 @@ $idxbtnY = 230
 $lstX = 208
 $lstY = 180
 
+$WAIT_OPEN_SECONDS = 20
+$AUTO_MODE_SendKeyDelay = 100
+$MANUAL_MODE_SendKeyDelay = 100
+
 $pname = "mainfree.bin"
-$dfcfexe = "D:\eastmoney\swc8\stockway.exe"
+$dfcfexe = "C:\eastmoney\swc8\stockway.exe"
 
 ; Will replace the ':' with '_' in the time part and replace '/' witn '-' in the date part
 Func TimeStringForFileName()
@@ -65,9 +70,9 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $auto)
 			   Send("{ESC}")
 
 			   IF $auto  Then
-				  AutoItSetOption("SendKeyDelay", 50)
+				  AutoItSetOption("SendKeyDelay", $AUTO_MODE_SendKeyDelay)
 			   Else
-				  AutoItSetOption("SendKeyDelay", 300)
+				  AutoItSetOption("SendKeyDelay", $MANUAL_MODE_SendKeyDelay)
 			   EndIf
 
 			   If $shortcut == "index" Then
@@ -92,7 +97,7 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $auto)
 			   Send("{DOWN " & $exportpos & "}{RIGHT 1}{ENTER}")
 
 			   ; change the output file name.
-			   AutoItSetOption("SendKeyDelay", 10)
+			   AutoItSetOption("SendKeyDelay", 20)
 			   Local $fn = TimedFullFileName($dir, $time, $shortcut & ".xls")
 			   Send("{TAB 2}" & $fn)
 
@@ -100,7 +105,7 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $auto)
 			   IF $auto Then
 				  ; accept default config and wait 2 seconds to close the dlg
 				  Send("{ENTER 3}")
-				  Sleep(2000)
+				  CountDown(2, "Wait Complete")
 				  CloseExportDlg()
 			   EndIf
 
@@ -206,7 +211,7 @@ Func Open()
    WEnd
 
    ; Sleep until logon
-   Sleep(10*1000)
+   CountDown($WAIT_OPEN_SECONDS, " Wait Open")
 
    Trace("Close adv dlg if any...")
    Local $i = 0
@@ -252,4 +257,19 @@ Func CloseAdvDlgIfAny()
 Func Trace($message)
    Local $now = _NowCalc()
    ConsoleWrite("" & $now & " " & $message & @CRLF)
+EndFunc
+
+
+Func CountDown($seconds, $message)
+    Local $hStarttime = _Timer_Init()
+    While 1
+	  sleep(1*1000)
+
+	  $left = $seconds - Int(_Timer_Diff($hStarttime) / 1000)
+	  If $left <= 0 Then ExitLoop
+
+	  ToolTip( $message & " " & $left & " seconds " )
+   WEnd
+
+   ToolTip("")
 EndFunc
