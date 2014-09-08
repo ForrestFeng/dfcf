@@ -18,8 +18,8 @@ Local $forcerun 		= 1
 Local $capturedelaysec 	= 60
 Local $opendelaysec 	= 35
 
-Local $dfcfpname 		= "mainfree.bin"
-Local $dfcfexe 			= "C:\eastmoney\swc8\stockway.exe"
+Local $dfcfpname 		= "mainfree.exe"
+Local $dfcfexe 			= "C:\eastmoney\swc8\mainfree.exe"
 
 
 ; main loop to capture data
