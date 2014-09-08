@@ -16,12 +16,8 @@ $idxbtnY = 230
 $lstX = 208
 $lstY = 180
 
-$WAIT_OPEN_SECONDS = 20
 $AUTO_MODE_SendKeyDelay = 100
 $MANUAL_MODE_SendKeyDelay = 100
-
-$pname = "mainfree.bin"
-$dfcfexe = "C:\eastmoney\swc8\stockway.exe"
 
 ; Will replace the ':' with '_' in the time part and replace '/' witn '-' in the date part
 Func TimeStringForFileName()
@@ -52,14 +48,21 @@ Func CloseExportDlg()
    Next
 EndFunc
 
-
-Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $auto)
+; $shortcut : the shortcut key to bring a page active in dfcf
+; $exportpos: the export menue position in the context menu
+; $dir 		: file output DirCopy
+; $time		: the time to be included in the file name
+; $name		: the file name to be included in the full file name
+; $refeshsec : seconds for dfcf app to refresh data table, after that a dialog will bring up to save whole table data
+; $auto 	: true allow user to interact with the save procedure
+; return 	: the file name that shold be saved to disk. The file may be not on the disk if capture failed
+Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto)
    ; First close any adv dlg if any
    CloseAdvDlgIfAny()
 
 	; Retrieve a list of window handles.
 	Local $aList = WinList()
-
+    Local $fn = "Z:\A_not_exist\file"
 	; Loop through the array displaying only visable windows with a title.
 	For $i = 1 To $aList[0][0]
 		If $aList[$i][0] <> "" And BitAND(WinGetState($aList[$i][1]), 2) Then
@@ -69,44 +72,13 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $auto)
 			   Sleep(300)
 			   Send("{ESC}")
 
-			   IF $auto  Then
-				  AutoItSetOption("SendKeyDelay", $AUTO_MODE_SendKeyDelay)
-			   Else
-				  AutoItSetOption("SendKeyDelay", $MANUAL_MODE_SendKeyDelay)
-			   EndIf
+			   ; call sub procedure to save data
+			   $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
 
-			   If $shortcut == "index" Then
-				  ; open the index table
-				  MouseMove($idxbtnX, $idxbtnY, 2)
-				  MouseClick("left")
-			   Else
-				  Send($shortcut)
-				  Send("{ENTER}")
-			   EndIf
-
-			   ; give it 2 seconds to refresh data
-			   Sleep(2*1000)
-
-			   ; bring up the context menu
-			   MouseMove($lstX, $lstY, 2)
-			   ; prevent click on the adv
-			   CloseAdvDlgIfAny()
-			   MouseClick("right")
-
-			   ; start the export dialog
-			   Send("{DOWN " & $exportpos & "}{RIGHT 1}{ENTER}")
-
-			   ; change the output file name.
-			   AutoItSetOption("SendKeyDelay", 20)
-			   Local $fn = TimedFullFileName($dir, $time, $shortcut & ".xls")
-			   Send("{TAB 2}" & $fn)
-
-			   ; stop here if not in auto mode
-			   IF $auto Then
-				  ; accept default config and wait 2 seconds to close the dlg
-				  Send("{ENTER 3}")
-				  CountDown(2, "Wait Complete")
-				  CloseExportDlg()
+			   ; try again, if the file was not written to disk
+			   IF Not FileExists($fn) Then
+				  Trace("[Warn] Failed to capture data of " & $fn & ". Now try again")
+				  $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
 			   EndIf
 
 			   ; close the dialog may need Sleep(500)a while
@@ -119,9 +91,66 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $auto)
 
 			;MsgBox($MB_SYSTEMMODAL, "", "Title: " & $aList[$i][0] & @CRLF & "Handle: " & $aList[$i][1])
 		EndIf
-	Next
+	 Next
+
+	Return $fn
+
  EndFunc   ;==>Example
 
+; $shortcut : the shortcut key to bring a page active in dfcf
+; $exportpos: the export menue position in the context menu
+; $dir 		: file output DirCopy
+; $time		: the time to be included in the file name
+; $name		: the file name to be included in the full file name
+; $refeshsec : seconds for dfcf app to refresh data table, after that a dialog will bring up to save whole table data
+; $auto 	: true allow user to interact with the save procedure
+Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+   ; adjust send key speed
+   IF $auto  Then
+	  AutoItSetOption("SendKeyDelay", $AUTO_MODE_SendKeyDelay)
+   Else
+	  AutoItSetOption("SendKeyDelay", $MANUAL_MODE_SendKeyDelay)
+   EndIf
+
+   ; special case of index
+   If $shortcut == "index" Then
+	  ; open the index table
+	  MouseMove($idxbtnX, $idxbtnY, 2)
+	  MouseClick("left")
+   Else
+	  Send($shortcut)
+	  Send("{ENTER}")
+   EndIf
+
+   ; give it $refeshsec seconds to refresh data
+   Sleep($refeshsec*1000)
+
+   ; bring up the context menu
+   MouseMove($lstX, $lstY, 2)
+
+   ; prevent click on the adv dlg
+   CloseAdvDlgIfAny()
+   MouseClick("right")
+
+   ; start the export dialog
+   Send("{DOWN " & $exportpos & "}{RIGHT 1}{ENTER}")
+
+   ; change the output file name.
+   AutoItSetOption("SendKeyDelay", 20)
+   Local $fn = TimedFullFileName($dir, $time, $name & ".xls")
+   Send("{TAB 2}" & $fn)
+
+   ; stop here if not in auto mode
+   IF $auto Then
+	  ; accept default config and wait 2 seconds to close the dlg
+	  Send("{ENTER 3}")
+	  CountDown(2, "Wait Complete")
+	  CloseExportDlg()
+	  Trace("[Info] Save " & $fn)
+   EndIf
+
+   Return $fn
+EndFunc
 
 ; If $time is not empty it is used else will use _NowCalc to get the current time
 Func AllowRunning($wday, $time)
@@ -200,18 +229,18 @@ EndFunc
 
 
 
-Func Open()
+Func Open($dfcfexe, $dfcfpname, $opendelaysec)
    ; Open the Process
    Trace("Open dfcf Process ...")
    Local $try = 0
    Local $iPID = Run($dfcfexe, "", @SW_SHOWMAXIMIZED)
-   while ((ProcessExists($pname) == 0  And $try < $TIMEOUT))
+   while ((ProcessExists($dfcfpname) == 0  And $try < $TIMEOUT))
 	  $try += 1
 	  Sleep(1*1000)
    WEnd
 
    ; Sleep until logon
-   CountDown($WAIT_OPEN_SECONDS, " Wait Open")
+   CountDown($opendelaysec, " Wait Open")
 
    Trace("Close adv dlg if any...")
    Local $i = 0
@@ -224,11 +253,11 @@ EndFunc
 
 
 ; Close the Process
-Func Close()
+Func Close($dfcfpname)
    Local	 $try = 0
    Trace("Close dfcf Process ...")
-   while ((ProcessExists($pname) <> 0  And $try < $TIMEOUT))
-	  ProcessClose($pname)
+   while ((ProcessExists($dfcfpname) <> 0  And $try < $TIMEOUT))
+	  ProcessClose($dfcfpname)
 	  $try += 1
 	  Sleep(1000)
    WEnd
