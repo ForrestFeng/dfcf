@@ -285,7 +285,19 @@ Func CloseAdvDlgIfAny()
 
 Func Trace($message)
    Local $now = _NowCalc()
-   ConsoleWrite("" & $now & " " & $message & @CRLF)
+   Local $logmsg = "" & $now & " " & $message;
+   ConsoleWrite($logmsg & @CRLF)
+
+   ; write to file as well
+   Local $logFile = ".\export_data_as_xls.log"
+
+;~    Local $hFileOpen FileOpen($logFile,  $FO_APPEND )
+
+;~    If $hFileOpen = -1 Then
+;~       ConsoleWrite("An error occurred when open log file " & $logFile )
+;~    EndIf
+
+   FileWriteLine($logFile,$logmsg)
 EndFunc
 
 
