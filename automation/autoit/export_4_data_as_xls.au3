@@ -11,15 +11,15 @@
 ;Open()
 
 
-Local $dir 			= "D:\data"
-Local $auto 		= 1
-Local $refeshsec 	= 2
-Local $forcerun 	= 1
-Local $delaysec 	= 60
-Local $opendelaysec = 35
+Local $dir 				= "D:\data"
+Local $auto 			= 1
+Local $refeshsec 		= 2
+Local $forcerun 		= 1
+Local $capturedelaysec 	= 60
+Local $opendelaysec 	= 35
 
-Local $dfcfpname 	= "mainfree.bin"
-Local $dfcfexe 		= "C:\eastmoney\swc8\stockway.exe"
+Local $dfcfpname 		= "mainfree.bin"
+Local $dfcfexe 			= "C:\eastmoney\swc8\stockway.exe"
 
 
 ; main loop to capture data
@@ -48,7 +48,7 @@ While 1
 	  Open($dfcfexe, $dfcfpname, $opendelaysec)
    Else
 	  ; Capture succeed, sleep a while to start next capture
-	  CountDown($delaysec, "Next Capture")
+	  CountDown($capturedelaysec, "Next Capture")
    EndIf
 
 WEnd
