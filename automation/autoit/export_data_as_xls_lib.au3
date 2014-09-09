@@ -2,6 +2,7 @@
 #include <File.au3>
 #include <MsgBoxConstants.au3>
 #include <Timers.au3>
+#include <ScreenCapture.au3>
 ;#RequireAdmin
 
 
@@ -88,9 +89,11 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 			   ; try again, if the file was not written to disk
 			   IF Not FileExists($fn) Then
 				  Trace("[Warn] Fail Save " & $fn & @CRLF & "Try again")
+				  _ScreenCapture_Capture($fn & "Fail Save.jpg")
 				  $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
 				  IF Not FileExists($fn) Then
 					 Trace("[Erro] Cann't Save " & $fn & @CRLF & "Try again")
+					 _ScreenCapture_Capture($fn & "Cannt Save.jpg")
 				  Else
 					 Trace("[Info] Done Save " & $fn)
 				  EndIf
@@ -125,7 +128,6 @@ Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec,
    ; Active the save dialog, when failed try again.
    Local $hDlg = ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
    If $hDlg == 0 Then
-	  Trace("[Warn] The export dialog handle is 0 try open it again")
 	  $hDlg = ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
    EndIf
 
@@ -133,6 +135,8 @@ Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec,
 
    ; do not continue as no export dialog is opend
    If $hDlg == 0 Then
+	  Trace("[Erro] The export dialog cann't be openned")
+	  _ScreenCapture_Capture($dir & "\export dialog cannt be openned.jpg")
 	  Return $fn
    EndIf
 
