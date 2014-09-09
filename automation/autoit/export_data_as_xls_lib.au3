@@ -87,8 +87,15 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 
 			   ; try again, if the file was not written to disk
 			   IF Not FileExists($fn) Then
-				  Trace("[Warn] Failed to capture data of " & $fn & ". Now try again")
+				  Trace("[Warn] Fail Save " & $fn & @CRLF & "Try again")
 				  $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+				  IF Not FileExists($fn) Then
+					 Trace("[Erro] Cann't Save " & $fn & @CRLF & "Try again")
+				  Else
+					 Trace("[Info] Done Save " & $fn)
+				  EndIf
+			   Else
+				  Trace("[Info] Done Save " & $fn)
 			   EndIf
 
 			   ; close the dialog may need Sleep(500)a while
@@ -122,18 +129,24 @@ Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec,
 	  $hDlg = ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
    EndIf
 
+   Local $fn = "C:\not_exist_path\not_exist_file"
+
+   ; do not continue as no export dialog is opend
+   If $hDlg == 0 Then
+	  Return $fn
+   EndIf
+
    ; change the output file name.
    AutoItSetOption("SendKeyDelay", $keyspeed_fn)
-   Local $fn = TimedFullFileName($dir, $time, $name & ".xls")
-   Send("{TAB 2}" & $fn)
+   $fn = TimedFullFileName($dir, $time, $name & ".xls")
+   Send($fn)
 
    ; stop here if not in auto mode
    IF $auto Then
 	  ; accept default config and wait 2 seconds to close the dlg
-	  Send("{ENTER 3}")
+	  Send("{ENTER 2}")
 	  CountDown(2, "Wait Complete")
 	  CloseExportDlg()
-	  Trace("[Info] Save " & $fn)
    EndIf
 
    Return $fn
@@ -169,9 +182,12 @@ Func ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $aut
    ; give app time to show the dlg
    Sleep($exportdlg_check_delay_ms)
 
+   ; tab to the file name editor
+   Send("{TAB 2}")
+
    ; check and return the hwnd of the dialog
    $hDlg = GetExportDlg()
-   Trace("[Info] Export dialog is opend with $hDlg=" & $hDlg )
+   ;Trace("[Info] Export dialog is opend with $hDlg=" & $hDlg )
    return $hDlg
 
 EndFunc
