@@ -5,19 +5,18 @@
 ;#RequireAdmin
 
 
-$TIMEOUT = 5
+Local $TIMEOUT = 5
+Local $ini = "config.ini"
 
-$centerX = 666
-$centerY = 388
+$idxbtnX 					= Int(IniRead($ini, "UIOperation", "IndexBtnX", "38"))
+$idxbtnY 					= Int(IniRead($ini, "UIOperation", "IndexBtnY", "230"))
+$lstX 						= Int(IniRead($ini, "UIOperation", "RightClkX", "208"))
+$lstY 						= Int(IniRead($ini, "UIOperation", "RightClkY", "180"))
+$keyspeed_symbol 			= Int(IniRead($ini, "UIOperation", "KeySpeedSymbol", "200"))
+$keyspeed_menu 				= Int(IniRead($ini, "UIOperation", "KeySpeedMenu", "50"))
+$keyspeed_fn 				= Int(IniRead($ini, "UIOperation", "KeySpeedFileName", "20"))
+$exportdlg_check_delay_ms 	= Int(IniRead($ini, "UIOperation", "ExportDlgCheckDelayMs", "300"))
 
-$idxbtnX = 38
-$idxbtnY = 230
-
-$lstX = 208
-$lstY = 180
-
-$AUTO_MODE_SendKeyDelay = 100
-$MANUAL_MODE_SendKeyDelay = 100
 
 ; Will replace the ':' with '_' in the time part and replace '/' witn '-' in the date part
 Func TimeStringForFileName()
@@ -34,18 +33,29 @@ Func TimedFullFileName($dir, $time, $name)
    Return $fn
 EndFunc
 
+
 Func CloseExportDlg()
+   Local $hDlg = GetExportDlg()
+   If $hDlg <> 0 Then
+	  WinClose($hDlg)
+   EndIf
+EndFunc
+
+
+Func GetExportDlg()
    Local $aList = WinList()
+   Local $hWnd = 0
    ; Loop through the array displaying only visable windows with a title.
    For $i = 1 To $aList[0][0]
 	  If $aList[$i][0] <> "" And BitAND(WinGetState($aList[$i][1]), 2) Then
 		If $aList[$i][0] == "导出对话框" Then
 		    ;MsgBox($MB_SYSTEMMODAL, "", "Got it")
-		    Local $hWnd  = $aList[$i][1]
-		    WinClose($hWnd)
+		    $hWnd  = $aList[$i][1]
 		EndIf
 	  EndIf
    Next
+
+   Return $hWnd
 EndFunc
 
 ; $shortcut : the shortcut key to bring a page active in dfcf
@@ -105,13 +115,33 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 ; $refeshsec : seconds for dfcf app to refresh data table, after that a dialog will bring up to save whole table data
 ; $auto 	: true allow user to interact with the save procedure
 Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
-   ; adjust send key speed
-   IF $auto  Then
-	  AutoItSetOption("SendKeyDelay", $AUTO_MODE_SendKeyDelay)
-   Else
-	  AutoItSetOption("SendKeyDelay", $MANUAL_MODE_SendKeyDelay)
+   ; Active the save dialog, when failed try again.
+   Local $hDlg = ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+   If $hDlg == 0 Then
+	  Trace("[Warn] The export dialog handle is 0 try open it again")
+	  $hDlg = ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
    EndIf
 
+   ; change the output file name.
+   AutoItSetOption("SendKeyDelay", $keyspeed_fn)
+   Local $fn = TimedFullFileName($dir, $time, $name & ".xls")
+   Send("{TAB 2}" & $fn)
+
+   ; stop here if not in auto mode
+   IF $auto Then
+	  ; accept default config and wait 2 seconds to close the dlg
+	  Send("{ENTER 3}")
+	  CountDown(2, "Wait Complete")
+	  CloseExportDlg()
+	  Trace("[Info] Save " & $fn)
+   EndIf
+
+   Return $fn
+EndFunc
+
+Func ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+   ; adjust send key speed
+   AutoItSetOption("SendKeyDelay", $keyspeed_symbol)
    ; special case of index
    If $shortcut == "index" Then
 	  ; open the index table
@@ -133,23 +163,17 @@ Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec,
    MouseClick("right")
 
    ; start the export dialog
+   AutoItSetOption("SendKeyDelay", $keyspeed_menu)
    Send("{DOWN " & $exportpos & "}{RIGHT 1}{ENTER}")
 
-   ; change the output file name.
-   AutoItSetOption("SendKeyDelay", 20)
-   Local $fn = TimedFullFileName($dir, $time, $name & ".xls")
-   Send("{TAB 2}" & $fn)
+   ; give app time to show the dlg
+   Sleep($exportdlg_check_delay_ms)
 
-   ; stop here if not in auto mode
-   IF $auto Then
-	  ; accept default config and wait 2 seconds to close the dlg
-	  Send("{ENTER 3}")
-	  CountDown(2, "Wait Complete")
-	  CloseExportDlg()
-	  Trace("[Info] Save " & $fn)
-   EndIf
+   ; check and return the hwnd of the dialog
+   $hDlg = GetExportDlg()
+   Trace("[Info] Export dialog is opend with $hDlg=" & $hDlg )
+   return $hDlg
 
-   Return $fn
 EndFunc
 
 ; If $time is not empty it is used else will use _NowCalc to get the current time
@@ -160,18 +184,16 @@ Func AllowRunning($wday, $time)
 	  $time = StringSplit($now, " ")[2]
    EndIf
 
-
-
    ;@WDAY Numeric day of week. Range is 1 to 7 which corresponds to Sunday through Saturday.
    ; only run for weekday from 1 - 5
    ; @WDAY [1,5]
-   ; @HOUR@MIN [9:30, 11:30] & [13:00,15:00]
+   ; @HOUR@MIN [9:25, 11:32] & [13:00,15:02]
    IF $wday >= 2 And $wday <= 6 Then
 	  ; AM and PM
-	  IF StringCompare($time, "09:30:00") >= 0 and StringCompare($time, "11:30:00") <= 0 Then
+	  IF StringCompare($time, "09:25:00") >= 0 and StringCompare($time, "11:32:00") <= 0 Then
 		 ConsoleWrite("wday " & $wday & " time " & $time & " return True" & @CRLF)
 		 return True
-	  ElseIf StringCompare($time, "13:00:00") >= 0 and StringCompare($time, "15:00:00") <= 0 Then
+	  ElseIf StringCompare($time, "13:00:00") >= 0 and StringCompare($time, "15:02:00") <= 0 Then
 		 ;MsgBox($MB_SYSTEMMODAL, "", "Got it")
 		 ConsoleWrite("wday " & $wday & " time " & $time & " return True" & @CRLF)
 		 Return True
@@ -187,15 +209,18 @@ Func AllowRunningTest()
    $info = "Unexpected return, please check error"
    ; False
    IF AllowRunning(3, "05:20:44") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
-   IF AllowRunning(3, "09:29:59") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
+   IF AllowRunning(3, "09:24:59") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
+
 
    ; True
+   IF NOT AllowRunning(3, "09:25:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(3, "09:30:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(3, "09:30:01") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(3, "10:34:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(3, "11:08:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(3, "11:29:59") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(3, "11:30:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
+   IF Not AllowRunning(3, "11:32:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
 
    ; False
    IF AllowRunning(1, "09:30:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
@@ -206,7 +231,7 @@ Func AllowRunningTest()
    IF AllowRunning(7, "11:30:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
 
    ; Fase
-   IF AllowRunning(2, "11:30:01") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
+   IF AllowRunning(2, "11:32:01") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF AllowRunning(2, "11:34:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF AllowRunning(2, "12:20:44") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF AllowRunning(2, "12:10:64") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
@@ -219,9 +244,10 @@ Func AllowRunningTest()
    IF Not AllowRunning(5, "14:00:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(5, "14:59:59") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF Not AllowRunning(5, "15:00:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
+   IF Not AllowRunning(5, "15:02:00") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
 
    ; Fase
-   IF AllowRunning(5, "15:00:01") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
+   IF AllowRunning(5, "15:02:01") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
    IF AllowRunning(5, "16:20:44") Then MsgBox($MB_SYSTEMMODAL, "Error", $info) EndIf
 
 EndFunc
@@ -238,6 +264,11 @@ Func Open($dfcfexe, $dfcfpname, $opendelaysec)
 	  $try += 1
 	  Sleep(1*1000)
    WEnd
+
+   If ProcessExists($dfcfpname) == 0 Then
+	  MsgBox($MB_SYSTEMMODAL, "", "Cannot start " &  $dfcfpname & ". Please check DfcfPorcName value in you config.ini file.")
+	  return $iPID
+   EndIf
 
    ; Sleep until logon
    CountDown($opendelaysec, " Wait Open")
@@ -263,6 +294,9 @@ Func Close($dfcfpname)
    WEnd
 EndFunc
 
+Func GetSaveDlg()
+
+EndFunc
 
 Func CloseAdvDlgIfAny()
 	; Retrieve a list of window handles.
