@@ -15,14 +15,6 @@ Local $dfcfexe  		= IniRead($ini, "General", "DfcfExePath", "C:\eastmoney\swc8\m
 Local $msg = "Start capture tool with args of " & @CRLF & " $dir="&$dir & @CRLF & " $auto="&$auto & @CRLF & " $$refeshsec="&$refeshsec & @CRLF & " $forcerun="&$forcerun & @CRLF & " $capturedelaysec="&$capturedelaysec & @CRLF & " $opendelaysec="&$opendelaysec & @CRLF & " $dfcfpname="&$dfcfpname & @CRLF & " $dfcfexe="&$dfcfexe
 Trace("[Info] " & $msg)
 
-Local $refeshsec 		= 2
-Local $capturedelaysec 	= 60
-Local $opendelaysec 	= 35
-
-; main loop to capture data
-Local $dfcfexe 			= "C:\eastmoney\swc8\mainfree.exe"
-
-
 ; main loop to capture data
 While 1
    ; to store returned file name
