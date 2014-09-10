@@ -1,0 +1,64 @@
+USE [Dfcf]
+GO
+
+/****** Object:  Table [dbo].[GGPM]    Script Date: 09/10/2014 23:04:12 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GGPM]') AND type in (N'U'))
+DROP TABLE [dbo].[GGPM]
+GO
+
+USE [Dfcf]
+GO
+
+/****** Object:  Table [dbo].[GGPM]    Script Date: 09/10/2014 23:04:12 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE TABLE [dbo].[GGPM](
+	DT DateTime NOT NULL, --DateTime
+	Ordi	REAL NULL, --ordinal
+	S		INT Not NULL,
+	N		NCHAR(32) NULL,
+	P		REAL NULL,
+	R		REAL NULL,
+	RP		REAL NULL,
+	V		REAL NULL,
+	NewV	REAL NULL,
+	BP		REAL NULL,
+	SP		REAL NULL,
+	RR		REAL NULL,
+	ER		REAL NULL,
+	A		REAL NULL,
+	PE		REAL NULL,
+	Ind		NCHAR(32) NULL,
+	H		REAL NULL,
+	L		REAL NULL,
+	O		REAL NULL,
+	LC		REAL NULL,
+	VIX		REAL NULL,
+	VR		REAL NULL,
+	OrdR	REAL NULL, --Order Ratio
+	OrdD	REAL NULL, --Order Diff
+	AvgP	REAL NULL,
+	IVol	REAL NULL, 
+	OVol	REAL NULL,
+	IOVolR	REAL NULL,
+	B1V		REAL NULL,
+	S1V		REAL NULL,
+	PB		REAL NULL,
+	TS		REAL NULL,
+	TSC		REAL NULL,
+	MS		REAL NULL,
+	MSC		REAL NULL,
+	R3		REAL NULL,
+	R6		REAL NULL,
+	ER3		REAL NULL,
+	ER6		REAL NULL,
+	CONSTRAINT pk_GGPM PRIMARY KEY (DT,S)
+) ON [PRIMARY]
+
+GO
