@@ -88,13 +88,12 @@ class MSSQL:
         self.conn.close()
 
 def main():
-    print(123)
 ## ms = MSSQL(host="localhost",user="sa",pwd="123456",db="PythonWeiboStatistics")
 ## #返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
 ## ms.ExecNonQuery("insert into WeiBoUser values('2','3')")
 
     ms = MSSQL(host="localhost",user="sa",pwd="Health123",db="Dfcf")
-    print(dir(ms))
+
     query = '''SELECT TOP 1000 [Id_P]
       ,[LId]
       ,[LastName]
@@ -105,17 +104,15 @@ def main():
     try:
         resList = ms.ExecQuery(query)
         print(len(resList))
-        for (id,weibocontent) in resList:
-            print (str(weibocontent).decode("utf8"))
+        for (id, weibocontent) in resList:
+            print(str(weibocontent).decode("utf8"))
     except Exception as e:
         print(e)
 
 if __name__ == '__main__':
     main()
 
-(20009, b'DB-Lib error message 20009, severity 9:\nUnable to connect: Adaptive Server is unavailable or does not exist\nNet-Lib error during Unknown error (10035)\n')
-[Finished in 60.5s]
+#(20009, b'DB-Lib error message 20009, severity 9:\nUnable to connect: Adaptive Server is unavailable or does not exist\nNet-Lib error during Unknown error (10035)\n')
+#[Finished in 60.5s]
 
-
-
-http://stackoverflow.com/questions/7317195/mssql-in-python-2-7
+#http://stackoverflow.com/questions/7317195/mssql-in-python-2-7
