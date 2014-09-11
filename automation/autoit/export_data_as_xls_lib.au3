@@ -343,7 +343,7 @@ Func Trace($message)
    ConsoleWrite($logmsg & @CRLF)
 
    ; write to file as well
-   Local $logFile = ".\export_data_as_xls.log"
+   Local $logFile = ".\traceviewer.log"
 
 ;~    Local $hFileOpen FileOpen($logFile,  $FO_APPEND )
 
