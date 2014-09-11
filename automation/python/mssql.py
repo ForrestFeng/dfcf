@@ -11,8 +11,6 @@
 
 import pymssql
 
-
-
 class MSSQL:
     """
     对pymssql的简单封装
@@ -52,7 +50,7 @@ class MSSQL:
         else:
             return cur
 
-    def ExecQuery(self,sql):
+    def ExecQuery(self, sql, arg=None):
         """
         执行查询语句
         返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
@@ -64,7 +62,7 @@ class MSSQL:
                     print str(id),NickName
         """
         cur = self.__GetConnect()
-        cur.execute(sql)
+        cur.execute(sql, arg)
         resList = cur.fetchall()
         print(resList)
 
@@ -72,7 +70,7 @@ class MSSQL:
         self.conn.close()
         return resList
 
-    def ExecNonQuery(self,sql):
+    def ExecNonQuery(self,sql,arg=None):
         """
         执行非查询语句
 
@@ -83,7 +81,7 @@ class MSSQL:
             self.conn.close()
         """
         cur = self.__GetConnect()
-        cur.execute(sql)
+        cur.execute(sql, arg)
         self.conn.commit()
         self.conn.close()
 
@@ -92,15 +90,11 @@ def main():
 ## #返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
 ## ms.ExecNonQuery("insert into WeiBoUser values('2','3')")
 
-    ms = MSSQL(host="localhost",user="sa",pwd="Health123",db="Dfcf")
+    ms = MSSQL(host="localhost", user="sa", pwd="Health123", db="Dfcf")
+    dir(ms)
 
-    query = '''SELECT TOP 1000 [Id_P]
-      ,[LId]
-      ,[LastName]
-      ,[FirstName]
-      ,[Address]
-      ,[City]
-      ,[Size]  FROM [Dfcf].[dbo].[Persons]'''
+
+    query = '''SELECT *  FROM [Dfcf].[dbo].[Test]'''
     try:
         resList = ms.ExecQuery(query)
         print(len(resList))
