@@ -20,9 +20,9 @@ GO
 
 CREATE TABLE [dbo].[GGPM](
 	DT DateTime NOT NULL, --DateTime
-	Ordi	REAL NULL, --ordinal
+	Ordi	INT NULL, --ordinal
 	S		INT Not NULL,
-	N		NCHAR(32) NULL,
+	N		NCHAR(128) NULL,
 	P		REAL NULL,
 	R		REAL NULL,
 	RP		REAL NULL,
@@ -34,7 +34,7 @@ CREATE TABLE [dbo].[GGPM](
 	ER		REAL NULL,
 	A		REAL NULL,
 	PE		REAL NULL,
-	Ind		NCHAR(32) NULL,
+	Ind		NCHAR(128) NULL,
 	H		REAL NULL,
 	L		REAL NULL,
 	O		REAL NULL,
