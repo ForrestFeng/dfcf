@@ -35,6 +35,18 @@ class MSSQL:
         self.user = user
         self.pwd = pwd
         self.db = db
+        self.cur = None
+
+        # connect to db
+        if not self.db:
+            raise(NameError,"没有设置数据库信息")
+        self.conn = pymssql.connect(host=self.host,user=self.user,password=self.pwd,database=self.db,charset="utf8")
+        cur = self.conn.cursor()
+        if not cur:
+            raise(NameError,"连接数据库失败")
+        else:
+            self.cur = cur
+
 
     def __GetConnect(self):
         """
@@ -50,7 +62,7 @@ class MSSQL:
         else:
             return cur
 
-    def ExecQuery(self, sql, arg=None):
+    def ExecQuery(self, sql, arg=None, autoclose=False):
         """
         执行查询语句
         返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
@@ -61,16 +73,19 @@ class MSSQL:
                 for (id,NickName) in resList:
                     print str(id),NickName
         """
-        cur = self.__GetConnect()
-        cur.execute(sql, arg)
-        resList = cur.fetchall()
+        if not self.cur:
+            self.cur = self.__GetConnect()
+        self.cur.execute(sql, arg)
+        resList = self.cur.fetchall()
         print(resList)
 
         #查询完毕后必须关闭连接
-        self.conn.close()
+        if autoclose:
+            self.conn.close()
+            self.cur = None
         return resList
 
-    def ExecNonQuery(self,sql,arg=None):
+    def ExecNonQuery(self, sql, arg=None, autocommit=False, autoclose=False):
         """
         执行非查询语句
 
@@ -80,10 +95,21 @@ class MSSQL:
             self.conn.commit()
             self.conn.close()
         """
-        cur = self.__GetConnect()
-        cur.execute(sql, arg)
+        if not self.cur:
+            self.cur = self.__GetConnect()
+        self.cur.execute(sql, arg)
+        if autocommit:
+            self.conn.commit()
+        if autoclose:
+            self.conn.close()
+            self.cur = None
+
+    def Close(self):
+        if self.cur :
+            self.conn.close()
+
+    def Commit(self):
         self.conn.commit()
-        self.conn.close()
 
 def main():
 ## ms = MSSQL(host="localhost",user="sa",pwd="123456",db="PythonWeiboStatistics")
