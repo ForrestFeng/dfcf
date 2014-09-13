@@ -1,0 +1,49 @@
+USE [Dfcf]
+GO
+
+/****** Object:  Table [dbo].[ZJLX]    Script Date: 09/13/2014 13:39:29 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ZJLX]') AND type in (N'U'))
+DROP TABLE [dbo].[ZJLX]
+GO
+
+USE [Dfcf]
+GO
+
+/****** Object:  Table [dbo].[ZJLX]    Script Date: 09/13/2014 13:39:29 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+
+GO
+CREATE TABLE [dbo].[ZJLX](
+	DT		DateTime NOT NULL, --DateTime
+	Ordi		INT NOT NULL, 
+	S		INT NOT NULL,
+	N		NCHAR(128) NULL,
+	P		REAL NULL,
+	R		REAL NULL,
+	[IN]		REAL NULL,
+	AA		REAL NULL,
+	TDI		REAL NULL,
+	TDO		REAL NULL,
+	TDN		REAL NULL,
+	TDP		REAL NULL,
+	DI		REAL NULL,
+	DO		REAL NULL,
+	DN		REAL NULL,
+	DP		REAL NULL,
+	MI		REAL NULL,
+	MO		REAL NULL,
+	MN		REAL NULL,
+	MP		REAL NULL,
+	SI		REAL NULL,
+	SO		REAL NULL,
+	SN		REAL NULL,
+	SP		REAL NULL,
+	CONSTRAINT pk_ZJLX PRIMARY KEY (DT,S)
+)ON [PRIMARY]
+
+GO
+
+
