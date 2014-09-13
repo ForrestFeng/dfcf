@@ -249,4 +249,4 @@ def show_record_list(record_list):
 #save_ggpm_as_csv(fname)
 ROOT_DIR = r'D:\data\20140910'
 #batch_save_ggpm_as_csv(ROOT_DIR)
-batch_bulk_ggpm_csv_to_sql_server(ROOT_DIR)
+#batch_bulk_ggpm_csv_to_sql_server(ROOT_DIR)

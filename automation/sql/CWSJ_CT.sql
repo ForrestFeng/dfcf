@@ -21,7 +21,7 @@ CREATE TABLE [dbo].[CWSJ](
 	Ordi		INT NOT NULL,
 	S		INT NOT NULL, 
 	N		NCHAR(128) NULL,
-	Date		DateTime  NULL,
+	RptDate		DateTime  NULL,
 	TSC		REAL NULL,
 	[ASC]		REAL NULL,
 	SharePerPerson		REAL NULL,
