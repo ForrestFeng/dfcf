@@ -210,10 +210,10 @@ Func AllowRunning($wday, $time)
    ; @HOUR@MIN [9:25, 11:32] & [13:00,15:02]
    IF $wday >= 2 And $wday <= 6 Then
 	  ; AM and PM
-	  IF StringCompare($time, "09:25:00") >= 0 and StringCompare($time, "11:32:00") <= 0 Then
+	  IF StringCompare($time, "09:31:00") >= 0 and StringCompare($time, "11:29:00") <= 0 Then
 		 ConsoleWrite("wday " & $wday & " time " & $time & " return True" & @CRLF)
 		 return True
-	  ElseIf StringCompare($time, "13:00:00") >= 0 and StringCompare($time, "15:02:00") <= 0 Then
+	  ElseIf StringCompare($time, "13:01:00") >= 0 and StringCompare($time, "14:59:00") <= 0 Then
 		 ;MsgBox($MB_SYSTEMMODAL, "", "Got it")
 		 ConsoleWrite("wday " & $wday & " time " & $time & " return True" & @CRLF)
 		 Return True
