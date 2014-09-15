@@ -149,7 +149,7 @@ Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec,
    IF $auto Then
 	  ; accept default config and wait 2 seconds to close the dlg
 	  Send("{ENTER 2}")
-	  CountDown(2, "Wait Complete")
+	  CountDown(3, "Wait Complete")
 	  CloseExportDlg()
    EndIf
 

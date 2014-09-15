@@ -11,6 +11,9 @@ MS = MSSQL(host="localhost", user="sa", pwd="Health123", db="Dfcf")
 def bulk_query(csv_fn):
     basename = os.path.basename(csv_fn)
     data_name = basename[20:basename.index('.')]
+    if '1Day.zjlx' in basename:
+        data_name = '1DAY'
+
     return r"""BULK INSERT [dbo].[{table}]
     FROM  '{csv}'
     WITH
@@ -224,17 +227,24 @@ def save_cwsj_to_sql_server(xls_fn):
 # bulk_csv_data_to_sql_server(csv_fn)
 
 
+# save cwsj
 if 0:
-    save_cwsj_to_sql_server(r'D:\data\CWSJ\2014-06-30 08_00_00 CWSJ.xls')
+     save_cwsj_to_sql_server(r'D:\data\CWSJ\2014-06-30 08_00_00 CWSJ.xls')
 
+
+# save 4 data
+if 1:
     ROOT_DIR = [r"D:\data\20140910", r"D:\data\20140911", r"D:\data\20140912"]
+    ROOT_DIR = [r"D:\data\20140915"]
     ROOT_DIR = []
     for r in ROOT_DIR:
-        PATTERN = ["*INDEX.xls", "*DDE.xls", "*ZCPM.xls", "*.ZJLX.xls", "*.GGPM.xls"]
+        PATTERN = ["*INDEX.xls", "*DDE.xls", "*ZCPM.xls", "*ZJLX.xls", "*GGPM.xls"]
         for p in PATTERN:
+            print(p)
             batch_save_xls_as_csv(r, p)
             batch_bulk_csv_data_to_sql_server(r, p+".csv")
 
-
-web_zjlx_fn = r'D:\home\projects\dfcfpy-fast-version\data\2014-08-01 223540 1Day.zjlx'
-save_data_from_web_zjlx_to_csv(web_zjlx_fn)
+if 1:
+    web_zjlx_fn = r'D:\home\projects\dfcfpy-fast-version\data\2014-08-01 223540 1Day.zjlx'
+    out_csv_fn = save_data_from_web_zjlx_to_csv(web_zjlx_fn)
+    bulk_csv_data_to_sql_server(out_csv_fn)

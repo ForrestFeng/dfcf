@@ -41,3 +41,8 @@ gen_create_table_query(index_header, 'INDEX')
 print()
 cwsj_header = "DT   Ordi	S	N	RptDate	TSC	ASC	SharePerPerson	EPS	NAPS	ROE	Rev	RevYoy	Profit	InvestProfit	TotalProfit	NetProfit	NetProfitYoy	UndisProfit	UndisProfitPerShare	MarginRate	TotalAssets	CurrentAssets	FixedAssets	IntangibleAssets	TotalLiabilities	CurrentLiabilities	LongtermLiabilities	LiabilityAssetRatio	Equity	EquityRatio	ReserveFunds	ReserveFundsPerShare	BSC	HSC	IPODate"
 gen_create_table_query(cwsj_header, 'CWSJ')
+
+
+print()
+web_1day_zjlx_header = "DT	Ordi	S	N	P	R	InNet	InNetP	TDN	TDP	DN	DP	MN	MP	SN	SP"
+gen_create_table_query(web_1day_zjlx_header, '1DAY')
