@@ -1,6 +1,8 @@
 import xlrd
 import glob
 import os
+import csv
+import json
 from mssql import MSSQL
 
 MS = MSSQL(host="localhost", user="sa", pwd="Health123", db="Dfcf")
@@ -38,10 +40,62 @@ def get_header(data_name):
                  'Profit', 'InvestProfit', 'TotalProfit', 'NetProfit', 'NetProfitYoy', 'UndisProfit',
                  'UndisProfitPerShare', 'MarginRate', 'TotalAssets', 'CurrentAssets', 'FixedAssets', 'IntangibleAssets',
                  'TotalLiabilities', 'CurrentLiabilities', 'LongtermLiabilities', 'LiabilityAssetRatio', 'Equity',
-                 'EquityRatio', 'ReserveFunds', 'ReserveFundsPerShare', 'BSC', 'HSC', 'IPODate']
+                 'EquityRatio', 'ReserveFunds', 'ReserveFundsPerShare', 'BSC', 'HSC', 'IPODate'],
+        '1DAY': ['DT', 'Ordi', 'S', 'N', 'P', 'R', 'InNet', 'InNetP', 'TDN', 'TDP', 'DN', 'DP', 'MN', 'MP',  'SN', 'SP']
     }
     return table[data_name]
 
+
+def read_data_from_web_zjlx(web_zjlx_fn):
+    """Parse zjlx  file and call your callback(ZjlxRecord) for each record
+    """
+    jason_data = None  #the json data
+    """
+    loaded Json data sample:
+    {"pages":1,
+     "date":"2014-08-02",
+     "data":[
+        "600000,浦发银行,9.76,-0.41,165580000,8.42,263090000,13.38,-97510000,-4.96,-80790000,-4.11,-84790000,-4.31",
+        "000562,宏源证券,11.63,0.52,153430000,5.75,191800000,7.19,-38370000,-1.44,-92020000,-3.45,-61420000,-2.30",
+        "002166,莱茵生物,20.45,10.01,131410000,27.03,116990000,24.06,14420000,2.97,-73640000,-15.15,-57760000,-11.88"
+        ...
+        ]}
+    """
+    with open(web_zjlx_fn, encoding='utf8') as f:
+        ss = f.read().split('=')
+        if len(ss) == 2:
+            # add quote mark so that it becomes a valid python's json data
+            s = ss[1].replace('data', '"data"').replace('date', '"date"').replace('pages', '"pages"')
+            jason_data = json.loads(s)
+        else:
+            print('Error to parse', web_zjlx_fn)
+
+    date_str = os.path.basename(web_zjlx_fn)[:10]
+    time_str = os.path.basename(web_zjlx_fn)[11:17]
+    time_str = '{}:{}:{}'.format(time_str[0:2], time_str[2:4], time_str[4:6])  #14:15:16
+    dat_time_str = date_str + ' ' + time_str
+    ordinal = 0
+    record_list = []
+    for record in jason_data["data"]:
+        ordinal += 1
+        record_list.append([dat_time_str, ordinal] + record.split(','))
+    return record_list
+
+
+def save_data_from_web_zjlx_to_csv(web_zjlx_fn):
+    data_records = read_data_from_web_zjlx(web_zjlx_fn)
+    out_csv_fn = web_zjlx_fn + ".csv"
+    print(web_zjlx_fn, end=' -->')
+    with open(out_csv_fn, 'wt', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        # write the header
+        basename = os.path.basename(web_zjlx_fn)
+        data_name = basename[18:basename.index('.')].upper()
+        writer.writerow(get_header(data_name))
+        # write the records
+        for record in data_records:
+            writer.writerow(record)
+    print(out_csv_fn)
 
 def read_data_from_xls(fname, with_header=False):
     basename = os.path.basename(fname)
@@ -170,12 +224,17 @@ def save_cwsj_to_sql_server(xls_fn):
 # bulk_csv_data_to_sql_server(csv_fn)
 
 
-save_cwsj_to_sql_server(r'D:\data\CWSJ\2014-06-30 08_00_00 CWSJ.xls')
+if 0:
+    save_cwsj_to_sql_server(r'D:\data\CWSJ\2014-06-30 08_00_00 CWSJ.xls')
 
-ROOT_DIR = [r"D:\data\20140910", r"D:\data\20140911", r"D:\data\20140912"]
-ROOT_DIR = []
-for r in ROOT_DIR:
-    PATTERN = ["*INDEX.xls", "*DDE.xls", "*ZCPM.xls", "*.ZJLX.xls", "*.GGPM.xls"]
-    for p in PATTERN:
-        batch_save_xls_as_csv(r, p)
-        batch_bulk_csv_data_to_sql_server(r, p+".csv")
+    ROOT_DIR = [r"D:\data\20140910", r"D:\data\20140911", r"D:\data\20140912"]
+    ROOT_DIR = []
+    for r in ROOT_DIR:
+        PATTERN = ["*INDEX.xls", "*DDE.xls", "*ZCPM.xls", "*.ZJLX.xls", "*.GGPM.xls"]
+        for p in PATTERN:
+            batch_save_xls_as_csv(r, p)
+            batch_bulk_csv_data_to_sql_server(r, p+".csv")
+
+
+web_zjlx_fn = r'D:\home\projects\dfcfpy-fast-version\data\2014-08-01 223540 1Day.zjlx'
+save_data_from_web_zjlx_to_csv(web_zjlx_fn)
