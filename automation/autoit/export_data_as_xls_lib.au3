@@ -19,6 +19,11 @@ $keyspeed_fn 				= Int(IniRead($ini, "UIOperation", "KeySpeedFileName", "20"))
 $exportdlg_check_delay_ms 	= Int(IniRead($ini, "UIOperation", "ExportDlgCheckDelayMs", "300"))
 
 
+Local $nextBtn = "[CLASS:Button; INSTANCE:1]" ;"Button1"
+Local $preBtn = "[CLASS:Button; INSTANCE:4]"; "Button4"
+Local $fnishBtn = "[CLASS:Button; INSTANCE:1]";
+
+
 ; Will replace the ':' with '_' in the time part and replace '/' witn '-' in the date part
 Func TimeStringForFileName()
    Local $now = _NowCalc()
@@ -28,8 +33,9 @@ Func TimeStringForFileName()
 EndFunc
 
 Func TimedFullFileName($dir, $time, $name)
-   DirCreate($dir)
-   Local $fn = $dir & "\" & $time & " " & $name
+   Local $datedDir = $dir & "\" & StringLeft ($time, 10)
+   DirCreate($datedDir)
+   Local $fn = $datedDir & "\"& $time & " " & $name
    ;MsgBox($MB_SYSTEMMODAL, "", $fn)
    Return $fn
 EndFunc
@@ -87,18 +93,31 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 			   $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
 
 			   ; try again, if the file was not written to disk
+			   Local $retry = 0
+			   While  Not FileExists($fn) And $retry < 3
+				  Sleep(1000)
+				  $retry += 1
+			   WEnd
+
 			   IF Not FileExists($fn) Then
-				  Trace("[Warn] Fail Save " & $fn & @CRLF & "Try again")
+				  Trace("[Warn] ****** Try save again " & $fn )
 				  _ScreenCapture_Capture($fn & "Fail Save.jpg")
 				  $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+				  $retry = 0
+				  While  Not FileExists($fn) And $retry < 3
+					 Sleep(1000)
+					 $retry += 1
+				  WEnd
 				  IF Not FileExists($fn) Then
-					 Trace("[Erro] Cann't Save " & $fn & @CRLF & "Try again")
+					 Trace("[Erro] !!!!!! Cann't save " & $fn)
 					 _ScreenCapture_Capture($fn & "Cannt Save.jpg")
 				  Else
-					 Trace("[Info] Done Save " & $fn)
+					 Trace("[Info] ----->  Done Save " & $fn)
 				  EndIf
 			   Else
-				  Trace("[Info] Done Save " & $fn)
+				  Trace("[Info] -----> Done Save " & $fn)
+				  ;CountDown(3, "Wait Complete")
+				  CloseExportDlg()
 			   EndIf
 
 			   ; close the dialog may need Sleep(500)a while
@@ -143,20 +162,45 @@ Func ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec,
    ; change the output file name.
    AutoItSetOption("SendKeyDelay", $keyspeed_fn)
    $fn = TimedFullFileName($dir, $time, $name & ".xls")
-   Send($fn)
+
+   ; Retrieve the text of the edit control in export dlg
+   Local $sText = ControlGetText($hDlg, "", "Edit1")
+    ;MsgBox($MB_SYSTEMMODAL, "", "The text in Edit1 is: " & $sText)
+   If not StringInStr($sText, "Table.xls") Then
+	  ;Trace("Cannot find the file name string in this export dlg")
+	  _ScreenCapture_Capture($fn & ".export file Edit1 cannot be found.jpg")
+	  CloseExportDlg()
+	  Sleep(200)
+	  $hDlg = ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+	  If not StringInStr($sText, "Table.xls") Then
+		 Trace("[Error] Cannot find the Edit1 file name input control")
+		 return "C:\not_exist_path\not_exist_file"
+	  EndIf
+   EndIf
+
+   ; Set the edit control in export dlg
+    ControlSetText($hDlg, "", "Edit1", $fn)
+    $sText = ControlGetText($hDlg, "", "Edit1")
+	Trace("[Info] Set export file " & $fn)
 
    ; stop here if not in auto mode
    IF $auto Then
 	  ; accept default config and wait 2 seconds to close the dlg
-	  Send("{ENTER 2}")
-	  CountDown(3, "Wait Complete")
-	  CloseExportDlg()
+	 ;Send("{ENTER 2}")
+	  Local $btnText = ControlGetText($hDlg, "", $nextBtn)
+	  Trace("[Info] Click " & $btnText)
+	  ControlClick($hDlg, "", $nextBtn)
+	  $btnText = ControlGetText($hDlg, "", $nextBtn)
+	  Trace("[Info] Click " & $btnText)
+	  ControlClick($hDlg, "", $nextBtn)
    EndIf
 
    Return $fn
 EndFunc
 
 Func ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
+   ; Close last eport dlg if any
+   CloseExportDlg()
    ; adjust send key speed
    AutoItSetOption("SendKeyDelay", $keyspeed_symbol)
    ; special case of index
