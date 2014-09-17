@@ -99,6 +99,7 @@ def save_data_from_web_zjlx_to_csv(web_zjlx_fn):
         for record in data_records:
             writer.writerow(record)
     print(out_csv_fn)
+    return out_csv_fn
 
 def read_data_from_xls(fname, with_header=False):
     basename = os.path.basename(fname)
@@ -245,6 +246,9 @@ if 1:
             batch_bulk_csv_data_to_sql_server(r, p+".csv")
 
 if 1:
-    web_zjlx_fn = r'D:\home\projects\dfcfpy-fast-version\data\2014-08-01 223540 1Day.zjlx'
-    out_csv_fn = save_data_from_web_zjlx_to_csv(web_zjlx_fn)
-    bulk_csv_data_to_sql_server(out_csv_fn)
+    root_dir = r'D:\data\webdata'
+    pattern = r'*1Day.zjlx'
+    file_list = glob.glob(os.path.join(root_dir, pattern))
+    for web_zjlx_fn in file_list:
+        out_csv_fn = save_data_from_web_zjlx_to_csv(web_zjlx_fn)
+        bulk_csv_data_to_sql_server(out_csv_fn)
