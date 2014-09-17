@@ -245,7 +245,7 @@ if 1:
             batch_save_xls_as_csv(r, p)
             batch_bulk_csv_data_to_sql_server(r, p+".csv")
 
-if 1:
+if 0:
     root_dir = r'D:\data\webdata'
     pattern = r'*1Day.zjlx'
     file_list = glob.glob(os.path.join(root_dir, pattern))
