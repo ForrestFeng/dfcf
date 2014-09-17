@@ -18,6 +18,19 @@ $keyspeed_menu 				= Int(IniRead($ini, "UIOperation", "KeySpeedMenu", "50"))
 $keyspeed_fn 				= Int(IniRead($ini, "UIOperation", "KeySpeedFileName", "20"))
 $exportdlg_check_delay_ms 	= Int(IniRead($ini, "UIOperation", "ExportDlgCheckDelayMs", "300"))
 
+$HushenGGBtnX           =Int(IniRead($ini, "UIOperation", "HushenGGBtnX", "38"))
+$HushenGGBtnY           =Int(IniRead($ini, "UIOperation", "HushenGGBtnY", "163"))
+$GGPMBtnX               =Int(IniRead($ini, "UIOperation", "GGPMBtnX", "130"))
+$GGPMBtnY               =Int(IniRead($ini, "UIOperation", "GGPMBtnY", "85"))
+$ZCPMBtnX               =Int(IniRead($ini, "UIOperation", "ZCPMBtnX", "205"))
+$ZCPMBtnY               =Int(IniRead($ini, "UIOperation", "ZCPMBtnY", "85"))
+$ZJLXBtnX               =Int(IniRead($ini, "UIOperation", "ZJLXBtnX", "275"))
+$ZJLXBtnY               =Int(IniRead($ini, "UIOperation", "ZJLXBtnY", "85"))
+$DDEBtnX                =Int(IniRead($ini, "UIOperation", "DDEBtnX", "345"))
+$DDEBtnY                =Int(IniRead($ini, "UIOperation", "DDEBtnY", "85"))
+$CWSJBtnX               =Int(IniRead($ini, "UIOperation", "CWSJBtnX", "495"))
+$CWSJBtnY               =Int(IniRead($ini, "UIOperation", "CWSJBtnY", "85"))
+
 
 Local $nextBtn = "[CLASS:Button; INSTANCE:1]" ;"Button1"
 Local $preBtn = "[CLASS:Button; INSTANCE:4]"; "Button4"
@@ -87,7 +100,6 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 			   Local $hWnd  = $aList[$i][1]
 			   WinActivate($hWnd)
 			   Sleep(300)
-			   Send("{ESC}")
 
 			   ; call sub procedure to save data
 			   $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
@@ -100,7 +112,7 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 			   WEnd
 
 			   IF Not FileExists($fn) Then
-				  Trace("[Warn] ****** Try save again " & $fn )
+				  Trace("[Warn] ****** Try save again ")
 				  _ScreenCapture_Capture($fn & "Fail Save.jpg")
 				  $fn = ActiveDlgAndSaveFile($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $auto)
 				  $retry = 0
@@ -109,7 +121,7 @@ Func ExportDataAsXls($shortcut, $exportpos, $dir, $time, $name, $delaysec, $auto
 					 $retry += 1
 				  WEnd
 				  IF Not FileExists($fn) Then
-					 Trace("[Erro] !!!!!! Cann't save " & $fn)
+					 Trace("[Erro] !!!!!! Cann't save ")
 					 _ScreenCapture_Capture($fn & "Cannt Save.jpg")
 				  Else
 					 Trace("[Info] ----->  Done Save " & $fn)
@@ -203,15 +215,31 @@ Func ActiveExportDlg($shortcut, $exportpos, $dir, $time, $name, $refeshsec, $aut
    CloseExportDlg()
    ; adjust send key speed
    AutoItSetOption("SendKeyDelay", $keyspeed_symbol)
+   Local $clickSleep = 90
    ; special case of index
    If $shortcut == "index" Then
 	  ; open the index table
-	  MouseMove($idxbtnX, $idxbtnY, 2)
-	  MouseClick("left")
+	  ;MsgBox($MB_SYSTEMMODAL, "", "X:"& $idxbtnX & " Y:" & $idxbtnY)
+	  MouseClick("left", $idxbtnX, $idxbtnY, 2)
+   ElseIf $shortcut == "60" Then
+	  MouseClick("left", $HushenGGBtnX, $HushenGGBtnY, 2)
+   ElseIf $shortcut == "ZCPM" Then
+	  MouseClick("left", $HushenGGBtnX, $HushenGGBtnY, 2)
+	  Sleep($clickSleep)
+	  MouseClick("left",$ZCPMBtnX, $ZCPMBtnY, 2)
+   ElseIf $shortcut == "ZJLX" Then
+	  MouseClick("left", $HushenGGBtnX, $HushenGGBtnY, 2)
+	  Sleep($clickSleep)
+	  MouseClick("left", $ZJLXBtnX, $ZJLXBtnY, 2)
+   ElseIf $shortcut == "DDE" Then
+	  MouseClick("left", $HushenGGBtnX, $HushenGGBtnY, 2)
+	  Sleep($clickSleep)
+	  MouseClick("left", $DDEBtnX, $DDEBtnY, 2)
    Else
 	  Send($shortcut)
 	  Send("{ENTER}")
    EndIf
+   Sleep($clickSleep)
 
    ; give it $refeshsec seconds to refresh data
    Sleep($refeshsec*1000)
