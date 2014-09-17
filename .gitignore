@@ -1,2 +1,4 @@
 automation/autoit/*.exe
 automation/autoit/export_data_as_xls.log
+automation/python/.idea/
+*.pyc
