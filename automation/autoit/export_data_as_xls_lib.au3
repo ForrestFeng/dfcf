@@ -31,6 +31,12 @@ $DDEBtnY                =Int(IniRead($ini, "UIOperation", "DDEBtnY", "85"))
 $CWSJBtnX               =Int(IniRead($ini, "UIOperation", "CWSJBtnX", "495"))
 $CWSJBtnY               =Int(IniRead($ini, "UIOperation", "CWSJBtnY", "85"))
 
+$AMStart				=IniRead($ini, "Schedule", "AMStart", "09:30:00")
+$AMEnd					=IniRead($ini, "Schedule", "AMEnd", "11:30:00")
+$PMStart				=IniRead($ini, "Schedule", "PMStart", "13:00:00")
+$PMEnd					=IniRead($ini, "Schedule", "PMEnd", "15:00:00")
+$Holiday				=IniRead($ini, "Schedule", "Holiday", "")
+
 
 Local $nextBtn = "[CLASS:Button; INSTANCE:1]" ;"Button1"
 Local $preBtn = "[CLASS:Button; INSTANCE:4]"; "Button4"
@@ -279,13 +285,13 @@ Func AllowRunning($wday, $time)
    ;@WDAY Numeric day of week. Range is 1 to 7 which corresponds to Sunday through Saturday.
    ; only run for weekday from 1 - 5
    ; @WDAY [1,5]
-   ; @HOUR@MIN [9:25, 11:32] & [13:00,15:02]
+   ; @HOUR@MIN [$AMStart, $AMEnd] & [$PMStart, $PMEnd]
    IF $wday >= 2 And $wday <= 6 Then
 	  ; AM and PM
-	  IF StringCompare($time, "09:31:00") >= 0 and StringCompare($time, "11:29:00") <= 0 Then
+	  IF StringCompare($time, $AMStart) >= 0 and StringCompare($time, $AMEnd) <= 0 Then
 		 ConsoleWrite("wday " & $wday & " time " & $time & " return True" & @CRLF)
 		 return True
-	  ElseIf StringCompare($time, "13:01:00") >= 0 and StringCompare($time, "14:59:00") <= 0 Then
+	  ElseIf StringCompare($time, $PMStart) >= 0 and StringCompare($time, $PMEnd) <= 0 Then
 		 ;MsgBox($MB_SYSTEMMODAL, "", "Got it")
 		 ConsoleWrite("wday " & $wday & " time " & $time & " return True" & @CRLF)
 		 Return True

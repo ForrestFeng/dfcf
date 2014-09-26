@@ -22,16 +22,16 @@ x
 nums = 1:10
 nums + 1
 
-nums = 1:10 
+nums = 1:10
 nums + c(1,2)
 
 nums = 1:10
-nums + c(1,2,3) # worning, onger object length is not a multiple 
+nums + c(1,2,3) # worning, onger object length is not a multiple
 
-# matrix is stored as vector with dimentions of 2. 
+# matrix is stored as vector with dimentions of 2.
 #all of the objects of an array must be of the same mode, so does matrix
 
-# the matrix function converts a vector to a matrix, 
+# the matrix function converts a vector to a matrix,
 # atrices are internally stored by columns
 rmat = matrix(rnorm(15),5,3,
               dimnames=list(NULL,c('A','B','C')))
@@ -92,7 +92,7 @@ names(tt)
 
 sum(as.numeric(names(tt)) * tt)
 
-# as.list() vs list() as. 
+# as.list() vs list() as.
 # as. forms for many types of objects behave very differently than the function which bears the type's name
 x = c(1,2,3,4,5)
 list(x) # length 1
@@ -101,7 +101,7 @@ as.list(x) # length 5 same as x
 # 1.7 Working with Missing Values
 # NA, Inf, NaN
 # The value NA, without quotes, represents a missing value
-# is.na test missing value, is.nan test not a number 
+# is.na test missing value, is.nan test not a number
 is.numeric(Inf) # TRUE
 is.na( c(NA,2, 8) ) # TRUE FALSE FALSE
 is.nan( c(NaN,2, 8) ) # TRUE FALSE FALSE
@@ -161,7 +161,7 @@ riris = iris[rev(1:nrow(iris)),]
 head(riris)
 
 #By default, subscripting operations reduce the dimensions of an array
-#whenever possible. Extracted part can be retained with the drop=FALSE argument, 
+#whenever possible. Extracted part can be retained with the drop=FALSE argument,
 #which is passed along with the subscripts of the array
 x = matrix(1:12,4,3)
 x[,1]
@@ -184,7 +184,7 @@ method2 = c(1,2,2,3,2,2,1,3,3,3,2,4,1,4,4,3)
 tt = table(method1,method2)
 tt
 class(tt)
-summary(tt) #what's the difference between 
+summary(tt) #what's the difference between
 offd = row(tt) != col(tt)
 tt[offd]
 sum(tt[offd])
@@ -192,7 +192,7 @@ sum(tt[offd])
 #logical matrix useful in extracting the lower or upper triangular elements of
 #a matrix.
 
-#6.7 Lists 
+#6.7 Lists
 
 #Lists are the most general way to store a collection of objects in R
 simple = list(a=c('fred','sam','harry'),b=c(24,17,19,22))
@@ -202,7 +202,7 @@ mode(simple)
 #Although it looks as if simple[2] represents the vector, it's actually a list
 #containing the vector; operations that would work on the vector will fail on this list:
 simple[2]
-mode(simple[2]) #"list" 
+mode(simple[2]) #"list"
 mean(simple[2])
 
 mode(simple$b)
@@ -234,14 +234,14 @@ dd = data.frame(a=c(5,9,12,15,17,11),b=c(8,NA,12,10,NA,15))
 dd[dd$b > 10,]
 dd[!is.na(dd$b) & dd$b > 10,] # what's difference of & and &&
 
-#subset function 
+#subset function
 ## S3 method for class 'data.frame'
 # subset(x, subset, select, drop = FALSE, ...)
 
 subset(dd, b>10) #not necessary to use the data frame name
 
 #Unlike most other functions in R, names passed through the
-#select= argument can be either quoted or unquoted. 
+#select= argument can be either quoted or unquoted.
 
 #To ignore columns, their name or index number can be preceded by a negative sign (-)
 some = subset(LifeCycleSavings,sr>10,select=c(pop15,pop75))
@@ -255,10 +255,10 @@ life2 = subset(LifeCycleSavings,select=-c(2,3))# same as above
 
 
 #7 Character Manipulation
-#Character values in R can be stored as scalars, vectors, or matrices, or they can be 
+#Character values in R can be stored as scalars, vectors, or matrices, or they can be
 #columns of a data frame or elements of a list.
 #length function will report the number of character values in
-#the object, not the number of characters in each string. 
+#the object, not the number of characters in each string.
 #use nchar to get char numbes instead. nchar it is vectorized. length is not!
 
 #7.1 Basics of Character Data
@@ -272,7 +272,7 @@ mode(state.name)
 length(state.name)
 nchar(state.name)
 
-# cat function. 
+# cat function.
 # it coerces its arguments to character values, then concatenates and displays them
 cat(... , file = "", sep = " ", fill = FALSE, labels = NULL,
     append = FALSE)
@@ -295,7 +295,7 @@ paste (..., sep = " ", collapse = NULL)
 # for multi-args
 paste('one',2,'three',4,'five')
 paste('one',2,'three',4,'five', sep = '-$')
-# for vectors, collapse= argument must be used sep= has no effect 
+# for vectors, collapse= argument must be used sep= has no effect
 paste(c('one','two','three','four'),collapse=' ')
 paste(c(1,'two','three',4.01),collapse=' ')
 # mix vectors and orther args result recycling short args
@@ -342,7 +342,7 @@ maxcor_even = function(i, n=10, m=5){
   mat = matrix(rnorm(n*m), n, m)
   corr = cor(mat)
   diag(corr) = NA
-  
+
   # what to return depends on input i
   # must return NA if not applicable
   if(i %% 2 == 0){
@@ -359,9 +359,9 @@ simple_vec = function(i, n=10, m=5){
 maxcors = sapply(1:5, simple_vec, n=7)
 plot(maxcors)
 
-text = c('R is a free environment for statistical analysis', 
-         'It compiles and runs on a variety of platforms', 
-         'Visit the R home page for more information') 
+text = c('R is a free environment for statistical analysis',
+         'It compiles and runs on a variety of platforms',
+         'Visit the R home page for more information')
 
 result = strsplit(text,' ')
 length(result)
@@ -393,9 +393,9 @@ head(state.x77)
 class(state.x77)
 summary(state.x77)
 #For matrices, a second argument
-#of 1 means "operate on the rows", 
+#of 1 means "operate on the rows",
 #and 2 means "operate on the columns"
-sstate = scale(state.x77,center=apply(state.x77,2,median), 
+sstate = scale(state.x77,center=apply(state.x77,2,median),
                scale=apply(state.x77,2,mad))
 
 #This example illustrates another advantage of using apply instead of a loop,
@@ -445,7 +445,7 @@ sweep(state.x77,2,meds,meanmed)
 mapply
 mapply(meanmed,as.data.frame(state.x77),meds)
 
-# 
+#
 #8.5 Mapping a Function Based on Groups
 #114 8 Data Aggregation
 
@@ -465,11 +465,11 @@ cweights <- aggregate(ChickWeight$weight,
                        ChickWeight[c('Time','Diet')],mean)
 head(cweights)
 
-#Error in aggregate.data.frame(as.data.frame(x), ...) : 
-#object 'groups' not found. 
+#Error in aggregate.data.frame(as.data.frame(x), ...) :
+#object 'groups' not found.
 groups <- list(Time=ChickWeight$Time,Diet=ChickWeight$Diet)
 cweights <- aggregate(ChickWeight$weight,
-                      groups,mean) 
+                      groups,mean)
 
 #f
 tapply
@@ -542,3 +542,36 @@ b2 = ISOdate(2003,8,14)
 b2 - b1
 difftime(b2,b1,units='weeks')
 as.difftime(c(0,30,60), units = "mins")
+
+
+
+在实际工作中，我们经常需要进行一些集合运算，在R中怎么实现呢？
+当然用不着写for或者while循环那么复杂了，R已经为我们提供了非常强大的集合运算系列函数，
+下面就简单的介绍一下这些函数(假设A,B,C为三个集合)：
+    #首先对集合A,B,C赋值
+    > A<-1:10
+    > B<-seq(5,15,2)
+    > C<-1:5
+    > #求A和B的并集
+    > union(A,B)
+     [1]  1  2  3  4  5  6  7  8  9 10 11 13 15
+    > #求A和B的交集
+    > intersect(A,B)
+    [1] 5 7 9
+    > #求A-B
+    > setdiff(A,B)
+    [1]  1  2  3  4  6  8 10
+    > #求B-A
+    > setdiff(B,A)
+    [1] 11 13 15
+    > #检验集合A,B是否相同
+    > setequal(A,B)
+    [1] FALSE
+    > #检验元素12是否属于集合C
+    > is.element(12,C)
+    [1] FALSE
+    > #检验集合A是否包含C
+    > all(C%in%A)
+    [1] TRUE
+    > all(C%in%B)
+    [1] FALSE

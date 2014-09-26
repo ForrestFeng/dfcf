@@ -234,21 +234,28 @@ if 0:
 
 
 # save 4 data
-if 1:
+if 0:
     ROOT_DIR = [r"D:\data\20140910", r"D:\data\20140911", r"D:\data\20140912"]
     ROOT_DIR = [r"D:\data\20140915"]
-    ROOT_DIR = []
+    ROOT_DIR = [r"D:\data\2014-09-16", r"D:\data\2014-09-17", r"D:\data\2014-09-18", r"D:\data\2014-09-19"]
+    ROOT_DIR = [r"D:\data\2014-09-19"]
+    exception_list = []
     for r in ROOT_DIR:
-        PATTERN = ["*INDEX.xls", "*DDE.xls", "*ZCPM.xls", "*ZJLX.xls", "*GGPM.xls"]
+        PATTERN = ["*INDEX.xls", "*DDE.xls", "*ZCPM.xls", "*ZJLX.xls", "*GGPM.xls"] #
         for p in PATTERN:
             print(p)
-            batch_save_xls_as_csv(r, p)
-            batch_bulk_csv_data_to_sql_server(r, p+".csv")
+            try:
+                batch_save_xls_as_csv(r, p)
+                batch_bulk_csv_data_to_sql_server(r, p+".csv")
+            except Exception as e:
+                exception_list.append(e)
+                print(e)
 
 if 0:
-    root_dir = r'D:\data\webdata'
-    pattern = r'*1Day.zjlx'
-    file_list = glob.glob(os.path.join(root_dir, pattern))
-    for web_zjlx_fn in file_list:
-        out_csv_fn = save_data_from_web_zjlx_to_csv(web_zjlx_fn)
-        bulk_csv_data_to_sql_server(out_csv_fn)
+    ROOT_DIR = [r'K:\dfcf\data\2014-09-17', r'K:\dfcf\data\2014-09-18', r'K:\dfcf\data\2014-09-19']
+    PATTERN = r'*1Day.zjlx'
+    for r in ROOT_DIR:
+        file_list = glob.glob(os.path.join(r, PATTERN))
+        for web_zjlx_fn in file_list:
+            out_csv_fn = save_data_from_web_zjlx_to_csv(web_zjlx_fn)
+            bulk_csv_data_to_sql_server(out_csv_fn)
