@@ -251,11 +251,20 @@ if 0:
                 exception_list.append(e)
                 print(e)
 
-if 0:
-    ROOT_DIR = [r'K:\dfcf\data\2014-09-17', r'K:\dfcf\data\2014-09-18', r'K:\dfcf\data\2014-09-19']
+if 1:
+    ROOT_DIR = [r'D:\data\webdata\2014-09-18',
+                r'D:\data\webdata\2014-09-19',
+                r'D:\data\webdata\2014-09-22',
+                r'D:\data\webdata\2014-09-23',
+                r'D:\data\webdata\2014-09-24',
+                r'D:\data\webdata\2014-09-25',
+                r'D:\data\webdata\2014-09-26'
+    ]
     PATTERN = r'*1Day.zjlx'
     for r in ROOT_DIR:
-        file_list = glob.glob(os.path.join(r, PATTERN))
+        path_pattern = r + PATTERN
+        print(path_pattern)
+        file_list = glob.glob(path_pattern)
         for web_zjlx_fn in file_list:
             out_csv_fn = save_data_from_web_zjlx_to_csv(web_zjlx_fn)
             bulk_csv_data_to_sql_server(out_csv_fn)

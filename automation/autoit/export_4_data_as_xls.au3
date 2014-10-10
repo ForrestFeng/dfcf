@@ -75,7 +75,7 @@ While 1
 	  EndIf
    Else
 	  ; Capture succeed, sleep a while to start next capture
-	  CountDown($capturedelaysec, "Wait Allow Running")
+	  CountDown(5, "Wait Allow Running")
    EndIf
 WEnd
 
